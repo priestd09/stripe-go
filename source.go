@@ -37,7 +37,7 @@ const (
 	FlowReceiver SourceFlow = "receiver"
 	// FlowVerification a verification code should be communicated by the
 	// customer to authenticate the source.
-	FlowVerification SourceFlow = "verification"
+	FlowVerification SourceFlow = "code_verification"
 	// FlowNone no particular authentication is involved the source should
 	// become chargeable directly or asyncrhonously.
 	FlowNone SourceFlow = "none"
@@ -151,10 +151,10 @@ const (
 	VerificationFlowStatusFailed    VerificationFlowStatus = "failed"
 )
 
-// ReceiverFlow informs of the state of a verification authentication flow.
+// VerificationFlow informs of the state of a verification authentication flow.
 type VerificationFlow struct {
-	AttemptsRemaining uint64             `json:"attempts_remaining"`
-	Status            RedirectFlowStatus `json:"status"`
+	AttemptsRemaining uint64                 `json:"attempts_remaining"`
+	Status            VerificationFlowStatus `json:"status"`
 }
 
 type Source struct {
@@ -174,7 +174,7 @@ type Source struct {
 	Owner        SourceOwner       `json:"owner"`
 	Redirect     *RedirectFlow     `json:"redirect,omitempty"`
 	Receiver     *ReceiverFlow     `json:"receiver,omitempty"`
-	Verification *VerificationFlow `json:"verification,omitempty"`
+	Verification *VerificationFlow `json:"code_verification,omitempty"`
 
 	TypeData map[string]interface{}
 }

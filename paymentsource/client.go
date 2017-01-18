@@ -150,16 +150,21 @@ func Verify(id string, params *stripe.SourceVerifyParams) (*stripe.PaymentSource
 
 func (s Client) Verify(id string, params *stripe.SourceVerifyParams) (*stripe.PaymentSource, error) {
 	body := &stripe.RequestValues{}
-	body.Add("amounts[]", strconv.Itoa(int(params.Amounts[0])))
-	body.Add("amounts[]", strconv.Itoa(int(params.Amounts[1])))
 
 	source := &stripe.PaymentSource{}
 	var err error
 
 	if len(params.Customer) > 0 {
+		body.Add("amounts[]", strconv.Itoa(int(params.Amounts[0])))
+		body.Add("amounts[]", strconv.Itoa(int(params.Amounts[1])))
+
 		err = s.B.Call("POST", fmt.Sprintf("/customers/%v/sources/%v/verify", params.Customer, id), s.Key, body, &params.Params, source)
-	} else {
-		err = errors.New("Only customer bank accounts can be verified in this manner.")
+	} else if len(params.Values) > 0 {
+		for _, v := range params.Values {
+			body.Add("values[]", v)
+		}
+
+		err = s.B.Call("POST", fmt.Sprintf("/sources/%v/verify", id), s.Key, body, &params.Params, source)
 	}
 
 	return source, err

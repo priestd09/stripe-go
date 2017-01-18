@@ -38,6 +38,7 @@ type SourceVerifyParams struct {
 	Params
 	Customer string
 	Amounts  [2]uint8
+	Values   []string
 }
 
 // SetSource adds valid sources to a CustomerSourceParams object,

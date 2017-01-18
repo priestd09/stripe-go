@@ -421,3 +421,46 @@ func TestSourceObjectNewGet(t *testing.T) {
 			src.SourceObject.Owner.Email)
 	}
 }
+
+func TestSourceObjectVerify(t *testing.T) {
+	params := &stripe.SourceObjectParams{
+		Type:     "ach_debit",
+		Currency: currency.USD,
+
+		TypeData: map[string]string{
+			"routing_number": "110000000",
+			"account_number": "000123456789",
+			"type":           "individual",
+			"country":        "US",
+		},
+
+		Owner: &stripe.SourceOwnerParams{
+			Name: "Jenny Rosen",
+		},
+	}
+
+	src, err := source.New(params)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	values := []string{"32", "45"}
+
+	verifyParams := &stripe.SourceVerifyParams{
+		Values: values,
+	}
+
+	sourceVerified, err := Verify(src.ID, verifyParams)
+
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	target := sourceVerified.SourceObject
+
+	if target.Verification.Status != stripe.VerificationFlowStatusSucceeded {
+		t.Errorf("Status (%q) does not match expected (%q) ", target.Verification.Status, stripe.VerificationFlowStatusSucceeded)
+	}
+}
