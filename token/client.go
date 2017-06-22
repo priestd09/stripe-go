@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	stripe "github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/form"
 )
 
 const (
@@ -26,32 +27,15 @@ func New(params *stripe.TokenParams) (*stripe.Token, error) {
 }
 
 func (c Client) New(params *stripe.TokenParams) (*stripe.Token, error) {
-	body := &stripe.RequestValues{}
-	token := c.Key
-
-	if len(params.Customer) > 0 {
-		body.Add("customer", params.Customer)
+	if params.Bank == nil && params.Card == nil && params.PII == nil {
+		return nil, errors.New("Invalid Token params: either Card, Bank, or PII need to be set")
 	}
 
-	if params.Card != nil {
-		params.Card.AppendDetails(body, true)
-	} else if params.Bank != nil {
-		params.Bank.AppendDetails(body)
-	} else if params.PII != nil {
-		params.PII.AppendDetails(body)
-	} else if len(params.Customer) == 0 {
-		err := errors.New("Invalid Token params: either Card, Bank, or PII need to be set")
-		return nil, err
-	}
-
-	if len(params.Email) > 0 {
-		body.Add("email", params.Email)
-	}
-
-	params.AppendTo(body)
+	body := &form.Values{}
+	form.AppendTo(body, params)
 
 	tok := &stripe.Token{}
-	err := c.B.Call("POST", "/tokens", token, body, &params.Params, tok)
+	err := c.B.Call("POST", "/tokens", c.Key, body, &params.Params, tok)
 
 	return tok, err
 }
@@ -63,13 +47,13 @@ func Get(id string, params *stripe.TokenParams) (*stripe.Token, error) {
 }
 
 func (c Client) Get(id string, params *stripe.TokenParams) (*stripe.Token, error) {
-	var body *stripe.RequestValues
+	var body *form.Values
 	var commonParams *stripe.Params
 
 	if params != nil {
 		commonParams = &params.Params
-		body = &stripe.RequestValues{}
-		params.AppendTo(body)
+		body = &form.Values{}
+		form.AppendTo(body, params)
 	}
 
 	token := &stripe.Token{}
