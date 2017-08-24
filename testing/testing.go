@@ -1,8 +1,11 @@
 package testing
 
 import (
+	"fmt"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 
 	stripe "github.com/stripe/stripe-go"
 )
@@ -14,9 +17,12 @@ import (
 // package, but should be used as appropriate for any new changes.
 
 const (
+	// MockMinimumVersion is the minimum acceptible version for stripe-mock.
+	MockMinimumVersion = "0.1.21"
+
 	// TestMerchantID is a token that can be used to represent a merchant ID in
 	// simple tests.
-	TestMerchantID = "acct_xxxx"
+	TestMerchantID = "acct_123"
 )
 
 func init() {
@@ -25,12 +31,59 @@ func init() {
 		port = "12111"
 	}
 
+	resp, err := http.Get("http://localhost:" + port)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Couldn't reach stripe-mock at `localhost:%s`. Is "+
+			"it running? Please see README for setup instructions.\n", port)
+		os.Exit(1)
+	}
+	version := resp.Header.Get("Stripe-Mock-Version")
+	if version != "master" && compareVersions(version, MockMinimumVersion) > 0 {
+		fmt.Fprintf(os.Stderr, "Your version of stripe-mock (%s) is too old. The "+
+			"minimum version to run this test suite is %s. Please see its "+
+			"repository for upgrade instructions.\n", version, MockMinimumVersion)
+		os.Exit(1)
+	}
+
 	stripe.Key = "sk_test_myTestKey"
 	stripe.SetBackend("api", stripe.BackendConfiguration{
 		Type:       stripe.APIBackend,
 		URL:        "http://localhost:" + port + "/v1",
 		HTTPClient: &http.Client{},
 	})
+}
 
-	// TODO: sample connection and version check
+// compareVersions compares two semantic version strings. We need this because
+// with more complex double-digit numbers, lexical comparison breaks down.
+func compareVersions(a, b string) (ret int) {
+	as := strings.Split(a, ".")
+	bs := strings.Split(b, ".")
+
+	loopMax := len(bs)
+	if len(as) > len(bs) {
+		loopMax = len(as)
+	}
+
+	for i := 0; i < loopMax; i++ {
+		var x, y string
+		if len(as) > i {
+			x = as[i]
+		}
+		if len(bs) > i {
+			y = bs[i]
+		}
+
+		xi, _ := strconv.Atoi(x)
+		yi, _ := strconv.Atoi(y)
+
+		if xi > yi {
+			ret = -1
+		} else if xi < yi {
+			ret = 1
+		}
+		if ret != 0 {
+			break
+		}
+	}
+	return
 }
