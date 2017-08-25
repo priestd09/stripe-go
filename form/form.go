@@ -49,6 +49,12 @@ type Appender interface {
 	AppendTo(values *Values, keyParts []string)
 }
 
+var (
+	// Strict enables strict mode wherein the package will panic on an AppendTo
+	// function if it finds that a malformatted tag string.
+	Strict = false
+)
+
 func AppendTo(values *Values, i interface{}) {
 	reflectValue(values, reflect.ValueOf(i), nil, nil)
 }
@@ -142,7 +148,7 @@ func reflectValue(values *Values, val reflect.Value, keyParts []string, options 
 
 	case reflect.Map:
 		for _, keyVal := range val.MapKeys() {
-			if keyVal.Kind() != reflect.String {
+			if Strict && keyVal.Kind() != reflect.String {
 				panic("Don't support serializing maps with non-string keys")
 			}
 
@@ -162,7 +168,7 @@ func reflectValue(values *Values, val reflect.Value, keyParts []string, options 
 		for i := 0; i < t.NumField(); i++ {
 			field := t.Field(i)
 			tag := field.Tag.Get(tagName)
-			if tag == "" {
+			if Strict && tag == "" {
 				panic(fmt.Sprintf(
 					"All fields in structs to be form-encoded must have `form` tag; on: %s/%s "+
 						"(hint: use an explicit `form:\"-\"` if the field should not be encoded",
@@ -178,7 +184,7 @@ func reflectValue(values *Values, val reflect.Value, keyParts []string, options 
 				continue
 			}
 
-			if options != nil &&
+			if Strict && options != nil &&
 				(options.Empty || options.Invert || options.Zero) &&
 				val.Field(i).Type().Kind() != reflect.Bool {
 
@@ -235,6 +241,16 @@ func parseTag(tag string) (string, *formOptions) {
 				options = &formOptions{}
 			}
 			options.Zero = true
+
+		default:
+			if Strict {
+				part := parts[i]
+				if part == "" {
+					part = "(empty)"
+				}
+				panic(fmt.Sprintf("Don't know how to handle form tag part: %s (tag: %s)",
+					part, tag))
+			}
 		}
 	}
 

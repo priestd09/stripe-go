@@ -99,7 +99,18 @@ type testSubSubStruct struct {
 	String string `form:"string"`
 }
 
+func init() {
+	Strict = true
+}
+
 func BenchmarkAppendTo(b *testing.B) {
+	// Disable strict mode for the duration of the benchmark (most real
+	// installations should not have it turned on)
+	Strict = false
+	defer func() {
+		Strict = true
+	}()
+
 	data := &benchStruct{
 		Bool:         true,
 		Ignored:      "123",
@@ -298,6 +309,13 @@ func TestFormatKey(t *testing.T) {
 }
 
 func TestParseTag(t *testing.T) {
+	// Disable strict mode for the duration of this test so that we can test
+	// some malformed tags
+	Strict = false
+	defer func() {
+		Strict = true
+	}()
+
 	testCases := []struct {
 		tag         string
 		wantName    string

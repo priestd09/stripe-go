@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	stripe "github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/form"
 )
 
 // This file should contain any testing helpers that should be commonly
@@ -26,6 +27,10 @@ const (
 )
 
 func init() {
+	// Enable strict mode on form encoding so that we'll panic if any kind of
+	// malformed param struct is detected
+	form.Strict = true
+
 	port := os.Getenv("STRIPE_MOCK_PORT")
 	if port == "" {
 		port = "12111"
