@@ -126,25 +126,25 @@ func BenchmarkAppendTo(b *testing.B) {
 }
 
 func TestAppendTo(t *testing.T) {
-	var arrayVal [3]string = [3]string{"1", "2", "3"}
+	var arrayVal = [3]string{"1", "2", "3"}
 
-	var boolVal bool = true
+	var boolVal = true
 
 	var float32Val float32 = 1.2345
 
-	var float64Val float64 = 1.2345
+	var float64Val = 1.2345
 
-	var intVal int = 123
+	var intVal = 123
 	var int8Val int8 = 123
 	var int16Val int16 = 123
 	var int32Val int32 = 123
 	var int64Val int64 = 123
 
-	var sliceVal []string = []string{"1", "2", "3"}
+	var sliceVal = []string{"1", "2", "3"}
 
-	var stringVal string = "123"
+	var stringVal = "123"
 
-	var subStructVal testSubStruct = testSubStruct{
+	var subStructVal = testSubStruct{
 		SubSubStruct: testSubSubStruct{
 			String: "123",
 		},

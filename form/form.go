@@ -55,6 +55,8 @@ var (
 	Strict = false
 )
 
+// AppendTo uses reflection to form-encode i into the given values collection
+// based off the form tags that it defines.
 func AppendTo(values *Values, i interface{}) {
 	reflectValue(values, reflect.ValueOf(i), nil, nil)
 }
