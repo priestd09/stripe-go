@@ -43,13 +43,25 @@ func TestAccountUnmarshal(t *testing.T) {
 }
 
 func TestIdentityDocument_Appendto(t *testing.T) {
-	params := &IdentityDocument{ID: "file_123"}
-	body := &form.Values{}
-	params.AppendTo(body,
-		[]string{"legal_entity", "additional_owners", "0", "verification", "document"})
-	t.Logf("body = %+v", body)
-	assert.Equal(t,
-		[]string{"file_123"},
-		body.Get("legal_entity[additional_owners][0][verification][document]"),
-	)
+	{
+		params := &IdentityDocument{ID: "file_123"}
+		body := &form.Values{}
+		params.AppendTo(body,
+			[]string{"legal_entity", "additional_owners", "0", "verification", "document"})
+		t.Logf("body = %+v", body)
+		assert.Equal(t,
+			[]string{"file_123"},
+			body.Get("legal_entity[additional_owners][0][verification][document]"),
+		)
+	}
+}
+
+func TestPayoutScheduleParams_AppendTo(t *testing.T) {
+	{
+		params := &PayoutScheduleParams{MinimumDelay: true}
+		body := &form.Values{}
+		form.AppendTo(body, params)
+		t.Logf("body = %+v", body)
+		assert.Equal(t, []string{"minimum"}, body.Get("delay_days"))
+	}
 }

@@ -108,7 +108,13 @@ type PayoutScheduleParams struct {
 	MonthAnchor  uint64   `form:"monthly_anchor"`
 	WeekAnchor   string   `form:"weekly_anchor"`
 	Interval     Interval `form:"interval"`
-	MinimumDelay bool     `form:"delay_days_minimum"`
+	MinimumDelay bool     `form:"-"` // See custom AppendTo
+}
+
+func (p *PayoutScheduleParams) AppendTo(body *form.Values, keyParts []string) {
+	if p.MinimumDelay {
+		body.Add(form.FormatKey(append(keyParts, "delay_days")), "minimum")
+	}
 }
 
 // Account is the resource representing your Stripe account.
