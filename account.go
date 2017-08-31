@@ -271,13 +271,14 @@ type LegalEntity struct {
 	PhoneNumber           string               `json:"phone_number" form:"phone_number"`
 	DOB                   DOB                  `json:"dob" form:"dob"`
 	Verification          IdentityVerification `json:"verification" form:"verification"`
-	SSN                   string               `json:"ssn_last_4" form:"ssn_last_4"`
+	SSN                   string               `json:"-" form:"ssn_last_4"`
 	SSNProvided           bool                 `json:"ssn_last_4_provided" form:"-"`
-	PersonalID            string               `json:"personal_id_number" form:"personal_id_number"`
+	PersonalID            string               `json:"-" form:"personal_id_number"`
 	PersonalIDProvided    bool                 `json:"personal_id_number_provided" form:"-"`
-	BusinessTaxID         string               `json:"business_tax_id" form:"business_tax_id"`
+	BusinessTaxID         string               `json:"-" form:"business_tax_id"`
 	BusinessTaxIDProvided bool                 `json:"business_tax_id_provided" form:"-"`
-	BusinessVatID         string               `json:"business_vat_id" form:"business_vat_id"`
+	BusinessVatID         string               `json:"-" form:"business_vat_id"`
+	BusinessVatIDProvided bool                 `json:"business_vat_id_provided" form:"-"`
 	Type                  LegalEntityType      `json:"type" form:"type"`
 }
 
