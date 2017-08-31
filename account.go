@@ -245,8 +245,6 @@ func (ea *ExternalAccount) UnmarshalJSON(b []byte) error {
 
 // LegalEntity is the structure for properties related to an account's legal state.
 type LegalEntity struct {
-	Type LegalEntityType `json:"type" form:"-"` // Not updatable
-
 	AdditionalOwners []Owner `json:"additional_owners" form:"additional_owners,indexed"`
 
 	// AdditionalOwnersEmpty can be set to clear a legal entity's additional
@@ -280,6 +278,7 @@ type LegalEntity struct {
 	BusinessTaxID         string               `json:"business_tax_id" form:"business_tax_id"`
 	BusinessTaxIDProvided bool                 `json:"business_tax_id_provided" form:"-"` // Note updatable
 	BusinessVatID         string               `json:"business_vat_id" form:"business_vat_id"`
+	Type                  LegalEntityType      `json:"type" form:"type"`
 }
 
 // Address is the structure for an account address.
